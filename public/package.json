@@ -19,7 +19,8 @@
     "socket.io-client": "^4.4.1",
     "styled-components": "^5.3.3",
     "uuid": "^8.3.2",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "yarn": "^1.22.22"
   },
   "scripts": {
     "start": "react-scripts start",

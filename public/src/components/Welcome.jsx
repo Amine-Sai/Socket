@@ -12,7 +12,6 @@ export default function Welcome() {
   }, []);
   return (
     <Container>
-      <img src={Robot} alt="" />
       <h1>
         Welcome, <span>{userName}!</span>
       </h1>

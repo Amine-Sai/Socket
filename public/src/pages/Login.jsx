@@ -63,10 +63,6 @@ export default function Login() {
     <>
       <FormContainer>
         <form action="" onSubmit={(event) => handleSubmit(event)}>
-          <div className="brand">
-            <img src={Logo} alt="logo" />
-            <h1>snappy</h1>
-          </div>
           <input
             type="text"
             placeholder="Username"
@@ -125,18 +121,18 @@ const FormContainer = styled.div`
   input {
     background-color: transparent;
     padding: 1rem;
-    border: 0.1rem solid #4e0eff;
+    border: 0.1rem solid solidrgb(78, 78, 78);
     border-radius: 0.4rem;
     color: white;
     width: 100%;
     font-size: 1rem;
     &:focus {
-      border: 0.1rem solid #997af0;
+      border: 0.1rem #212154;
       outline: none;
     }
   }
   button {
-    background-color: #4e0eff;
+    background-color: #212154;
     color: white;
     padding: 1rem 2rem;
     border: none;
@@ -146,14 +142,14 @@ const FormContainer = styled.div`
     font-size: 1rem;
     text-transform: uppercase;
     &:hover {
-      background-color: #4e0eff;
+      background-color: #solidrgb(78, 78, 78);
     }
   }
   span {
     color: white;
     text-transform: uppercase;
     a {
-      color: #4e0eff;
+      color: #solidrgb(78, 78, 78);
       text-decoration: none;
       font-weight: bold;
     }
