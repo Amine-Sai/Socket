@@ -18,7 +18,7 @@ export default function Contacts({ contacts, changeChat }) {
   };
   return (
     <>
-      {currentUserImage && currentUserImage && (
+      {
         <Container>
           <div className="contacts">
             {contacts.map((contact, index) => {
@@ -43,7 +43,7 @@ export default function Contacts({ contacts, changeChat }) {
               );
             })}
           </div>
-          <div className="current-user">
+          {/* <div className="current-user">
             <div className="avatar">
               <img
                 src={`data:image/svg+xml;base64,${currentUserImage}`}
@@ -53,9 +53,9 @@ export default function Contacts({ contacts, changeChat }) {
             <div className="username">
               <h2>{currentUserName}</h2>
             </div>
-          </div>
+          </div> */}
         </Container>
-      )}
+      }
     </>
   );
 }
