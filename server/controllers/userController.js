@@ -31,7 +31,7 @@ module.exports.register = async (req, res, next) => {
     return res.json({ status: true, user });
   } catch (error) {
     console.log(error);
-    return res.json({ status: true, user }).status(500);
+    return res.json({ status: false }).status(500);
   }
 };
 
@@ -39,7 +39,6 @@ module.exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find({ _id: { $ne: req.params.id } }).select([
       "_id",
-      "email",
       "username",
     ]);
     return res.json(users);
