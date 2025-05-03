@@ -52,70 +52,62 @@ export default function Register() {
       );
       return false;
     }
-
-    const handleSubmit = async (event) => {
-      event.preventDefault();
-      if (handleValidation()) {
-        const { username, password } = values;
-        const { data } = await axios.post(registerRoute, {
-          username,
-          password,
-        });
-
-        if (data.status === false) {
-          toast.error(data.msg, toastOptions);
-        }
-        if (data.status === true) {
-          localStorage.setItem(
-            process.env.REACT_APP_LOCALHOST_KEY,
-            JSON.stringify(data.user)
-          );
-          navigate("/");
-        }
-      }
-    };
-
-    return (
-      <>
-        <FormContainer>
-          <form action="" onSubmit={(event) => handleSubmit(event)}>
-            <div className="brand">
-              <h1>snappy</h1>
-            </div>
-            <input
-              type="text"
-              placeholder="Username"
-              name="username"
-              onChange={(e) => handleChange(e)}
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              name="email"
-              onChange={(e) => handleChange(e)}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              name="password"
-              onChange={(e) => handleChange(e)}
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              name="confirmPassword"
-              onChange={(e) => handleChange(e)}
-            />
-            <button type="submit">Create User</button>
-            <span>
-              Already have an account ? <Link to="/login">Login.</Link>
-            </span>
-          </form>
-        </FormContainer>
-        <ToastContainer />
-      </>
-    );
+    return true;
   };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (handleValidation()) {
+      const { username, password } = values;
+      const { data } = await axios.post(registerRoute, {
+        username,
+        password,
+      });
+
+      if (data.status === false) {
+        toast.error(data.msg, toastOptions);
+      }
+      if (data.status === true) {
+        localStorage.setItem(
+          process.env.REACT_APP_LOCALHOST_KEY,
+          JSON.stringify(data.user)
+        );
+        navigate("/");
+      }
+    }
+  };
+
+  return (
+    <>
+      <FormContainer>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Username"
+            name="username"
+            onChange={handleChange}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            name="password"
+            onChange={handleChange}
+          />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            name="confirmPassword"
+            onChange={handleChange}
+          />
+          <button type="submit">Create User</button>
+          <span>
+            Already have an account? <Link to="/login">Login.</Link>
+          </span>
+        </form>
+      </FormContainer>
+      <ToastContainer />
+    </>
+  );
 }
 const FormContainer = styled.div`
   height: 100vh;
@@ -162,7 +154,7 @@ const FormContainer = styled.div`
     }
   }
   button {
-    background-color: solidrgb(78, 78, 78);
+    background-color: #212154;
     color: white;
     padding: 1rem 2rem;
     border: none;
