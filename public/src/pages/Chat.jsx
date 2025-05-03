@@ -6,6 +6,8 @@ import { allUsersRoute, host } from "../utils/APIRoutes";
 import ChatContainer from "../components/ChatContainer";
 import Contacts from "../components/Contacts";
 import Welcome from "../components/Welcome";
+import Logout from "../components/Logout";
+import axios from "axios";
 
 export default function Chat() {
   const navigate = useNavigate();
@@ -13,17 +15,27 @@ export default function Chat() {
   const [contacts, setContacts] = useState([]);
   const [currentChat, setCurrentChat] = useState(undefined);
   const [currentUser, setCurrentUser] = useState(undefined);
-  useEffect(async () => {
-    if (!localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)) {
-      navigate("/login");
-    } else {
-      setCurrentUser(
-        await JSON.parse(
+
+  useEffect(() => {
+    const checkUser = async () => {
+      if (!localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)) {
+        navigate("/login");
+      } else {
+        const userData = await JSON.parse(
           localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-        )
-      );
-    }
-  }, []);
+        );
+        setCurrentUser(userData);
+
+        // Fetch all users except current user
+        if (userData) {
+          const { data } = await axios.get(`${allUsersRoute}/${userData._id}`);
+          setContacts(data);
+        }
+      }
+    };
+    checkUser();
+  }, [navigate]);
+
   useEffect(() => {
     if (currentUser) {
       socket.current = io(host);
@@ -31,25 +43,24 @@ export default function Chat() {
     }
   }, [currentUser]);
 
-  useEffect(async () => {
-    if (currentUser) navigate("/setAvatar");
-  }, [currentUser]);
   const handleChatChange = (chat) => {
     setCurrentChat(chat);
   };
+
   return (
-    <>
-      <Container>
-        <div className="container">
-          <Contacts contacts={contacts} changeChat={handleChatChange} />
-          {currentChat === undefined ? (
-            <Welcome />
-          ) : (
-            <ChatContainer currentChat={currentChat} socket={socket} />
-          )}
-        </div>
-      </Container>
-    </>
+    <Container>
+      <div className="logout-container">
+        <Logout />
+      </div>
+      <div className="container">
+        <Contacts contacts={contacts} changeChat={handleChatChange} />
+        {currentChat === undefined ? (
+          <Welcome />
+        ) : (
+          <ChatContainer currentChat={currentChat} socket={socket} />
+        )}
+      </div>
+    </Container>
   );
 }
 
@@ -71,5 +82,10 @@ const Container = styled.div`
     @media screen and (min-width: 720px) and (max-width: 1080px) {
       grid-template-columns: 35% 65%;
     }
+  }
+  .logout-container {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
   }
 `;
