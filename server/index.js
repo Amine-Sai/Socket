@@ -40,17 +40,33 @@ const io = socket(server, {
   },
 });
 
-global.onlineUsers = new Map();
+// Add/modify these socket handlers:
 io.on("connection", (socket) => {
-  global.chatSocket = socket;
+  console.log(`New connection: ${socket.id}`);
+
+  // Store user's socket ID when they connect
   socket.on("add-user", (userId) => {
     onlineUsers.set(userId, socket.id);
+    console.log(`User ${userId} connected with socket ${socket.id}`);
   });
 
   socket.on("send-msg", (data) => {
-    const sendUserSocket = onlineUsers.get(data.to);
-    if (sendUserSocket) {
-      socket.to(sendUserSocket).emit("msg-recieve", data.msg);
+    console.log("Message received from:", data.from, "to:", data.to);
+    const recipientSocket = onlineUsers.get(data.to);
+
+    if (recipientSocket) {
+      io.to(recipientSocket).emit("msg-receive", {
+        from: data.from,
+        msg: data.msg,
+        timestamp: new Date(),
+      });
+      console.log("Message forwarded to:", recipientSocket);
+    } else {
+      console.log("Recipient not online:", data.to);
     }
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`Socket disconnected: ${socket.id}`);
   });
 });

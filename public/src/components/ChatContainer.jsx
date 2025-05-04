@@ -37,8 +37,17 @@ export default function ChatContainer({ currentChat, socket }) {
   useEffect(() => {
     if (!socket.current) return;
 
-    const handleReceiveMessage = (msg) => {
-      setMessages((prev) => [...prev, { fromSelf: false, message: msg }]);
+    const handleReceiveMessage = (receivedMsg) => {
+      console.log("New message received:", receivedMsg);
+      setMessages((prev) => [
+        ...prev,
+        {
+          fromSelf: false,
+          message: receivedMsg.msg,
+          sender: receivedMsg.from,
+          timestamp: receivedMsg.timestamp,
+        },
+      ]);
     };
 
     socket.current.on("msg-receive", handleReceiveMessage);
@@ -51,20 +60,24 @@ export default function ChatContainer({ currentChat, socket }) {
   const handleSendMsg = async (msg) => {
     if (!msg.trim() || !currentChat) return;
 
-    let newMessage = { fromSelf: true, message: msg };
+    const newMessage = {
+      fromSelf: true,
+      message: msg,
+      timestamp: new Date(),
+    };
+
     try {
+      setMessages((prev) => [...prev, newMessage]);
+
       const userData = JSON.parse(
         localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
       );
 
-      // Optimistic UI update
-      setMessages((prev) => [...prev, newMessage]);
-
-      // Emit socket message
+      // Emit through socket
       socket.current.emit("send-msg", {
         to: currentChat._id,
         from: userData._id,
-        msg,
+        msg: msg,
       });
 
       // Save to database
@@ -74,15 +87,10 @@ export default function ChatContainer({ currentChat, socket }) {
         message: msg,
       });
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Message send failed:", error);
       setMessages((prev) => prev.filter((m) => m !== newMessage));
     }
   };
-
-  // Auto-scroll to newest message
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
 
   return (
     <Container>
