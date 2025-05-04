@@ -15,6 +15,7 @@ export default function Chat() {
   const [contacts, setContacts] = useState([]);
   const [currentChat, setCurrentChat] = useState(undefined);
   const [currentUser, setCurrentUser] = useState(undefined);
+  const [messages, setMessages] = useState([]); // Added for message state
 
   useEffect(() => {
     const checkUser = async () => {
@@ -26,7 +27,6 @@ export default function Chat() {
         );
         setCurrentUser(userData);
 
-        // Fetch all users except current user
         if (userData) {
           const { data } = await axios.get(`${allUsersRoute}/${userData._id}`);
           setContacts(data);
@@ -40,15 +40,54 @@ export default function Chat() {
     if (currentUser) {
       socket.current = io(host);
       socket.current.emit("add-user", currentUser._id);
+
+      // Set up message listener
+      socket.current.on("msg-receive", (msg) => {
+        setMessages((prev) => [...prev, { fromSelf: false, message: msg }]);
+      });
+
+      // Cleanup function
+      return () => {
+        if (socket.current) {
+          socket.current.off("msg-receive");
+          socket.current.disconnect();
+        }
+      };
     }
   }, [currentUser]);
 
   const handleChatChange = (chat) => {
     setCurrentChat(chat);
+    // Load messages when chat changes
+    if (chat) {
+      loadMessages(chat);
+    }
   };
-  console.log("Current User:", currentUser);
-  console.log("Contacts:", contacts);
-  console.log("Current Chat:", currentChat);
+
+  const loadMessages = async (chat) => {
+    if (currentUser) {
+      const userData = await JSON.parse(
+        localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
+      );
+      setCurrentUser(userData);
+      const { data } = await axios.post(`${allUsersRoute}/${userData._id}`, {
+        from: currentUser._id,
+        to: chat._id,
+      });
+      setMessages(data);
+    }
+  };
+
+  const handleSendMsg = async (msg) => {
+    if (currentChat && currentUser) {
+      socket.current.emit("send-msg", {
+        to: currentChat._id,
+        from: currentUser._id,
+        msg,
+      });
+      setMessages((prev) => [...prev, { fromSelf: true, message: msg }]);
+    }
+  };
 
   return (
     <Container>
@@ -60,7 +99,12 @@ export default function Chat() {
         {currentChat === undefined ? (
           <Welcome />
         ) : (
-          <ChatContainer currentChat={currentChat} socket={socket} />
+          <ChatContainer
+            currentChat={currentChat}
+            socket={socket}
+            messages={messages}
+            handleSendMsg={handleSendMsg}
+          />
         )}
       </div>
     </Container>
